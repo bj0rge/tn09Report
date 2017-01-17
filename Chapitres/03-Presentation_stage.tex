@@ -1,0 +1,145 @@
+\chapter{Présentation du stage}
+
+La mission de ce stage repose sur l'intégration de \emph{Business Objects} (BO). C'est pour cette raison qu'il est intéressant de s'attarder sur le choix de ce sujet ainsi que sur les deux outils sur lesquels a porté mon travail.
+
+\section[Rappel du sujet]{Ma mission au sein d'Implicit}
+
+Le sujet du stage qui m'a été confié est le suivant : \og\emph{Intégration de \emph{Business Objects} dans nos solutions logicielles}\fg.
+
+Il s'agit d'un sujet de Recherche et Développement, dont la durée peut difficilement être estimée. Il a ainsi été restreint à trois activités, et dans l'ordre de priorité suivant :
+\begin{itemize}
+	\item Exploitation des états BO (Webi XI 4) directement dans la solution logicielle.
+	\item Intégration des solutions de cartographie de \emph{Business Geografic} (qui s'appuient sur BO) 
+	\item Implémentation d'un connecteur pour BO XI R3
+\end{itemize}
+
+Face à l'ampleur du projet, il a été rapidement convenu que la dernière activité serait écartée du sujet du stage. D'autant plus que, s'agissant toujours de R\&D, nous n'étions pas assurés de pouvoir parvenir à réaliser le premier item. Sa concrétisation a relégué à l'arrière plan l'implémentation d'un connecteur pour une version plus ancienne de BO.
+
+\section{Présentation du logiciel CCAS Web}
+
+L'outil \emph{CCAS Web} est la solution online de l'ancienne application client-serveur \mbox{\emph{Millésime}}. En effet, une première version en client lourd a été déployée pendant des années, jusqu'à ce que les usagers lui préfèrent un outil en client léger. Elle permet de se passer de la configuration sur chaque poste, nécessaire lors d'une mise à jour ou d'une installation : la seconde solution ne nécessite qu'un explorateur web.
+
+CCAS Web est un progiciel de gestion des aides sociales (\textit{voir} Annexe \ref{FP_Action_Sociale} page \pageref*{FP_Action_Sociale}). Il doit permettre d'éditer des formulaires, d'attribuer des aides, d'effectuer un suivi\dots{}
+
+Il s'agit d'un portail pointant vers chacun des modules\footnote{Chaque module représente un dispositif d'aide, parmi : Aides légales, aides facultatives, aides extérieures, RSA, demande de logement social, SDS (Sans Domicile Stable), suivi social, élection de domicile.} utilisés par les usagers d'une commune (\textit{voir} Figure \ref{accueil-ccas-web}), et dans lequel les bénéficiaires d'aides sociales s'articulent autour d'un \emph{foyer} --- notion représentant une famille au sens large, souvent identique au foyer fiscal --- et défini par son responsable.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[height=225px]{millesime-original.png}
+		\caption{Page d'accueil de l'application CCAS Web}
+		\label{accueil-ccas-web}
+	\end{center}
+\end{figure}
+
+Une fois les bénéficiaires enregistrés en base, CCAS Web permet d'effectuer principalement deux types d'actions :
+\begin{itemize}
+	\item L'instruction simple d'un dossier. Dans le cas de l'aide légale\footnote{Aide dont le montant, les conditions d'attribution, le nombre d'affectations annuelles autorisées\dots{} sont cadrés par la loi. \cite{unccas.org}} par exemple, ce n'est pas la commune qui est décisionnaire, mais généralement le Conseil Général. Le logiciel permettra alors d'enregistrer la demande et de la formater pour être transmise à l'autorité décisionnelle compétente.
+	\item La gestion complète du dossier. Dans le cadre d'une aide facultative \footnote{Aide définie par la politique sociale de la commune, comme un prêt sans intérêt, l'attribution de CAP (Chèque d'Accompagnement Personnalisé)\dots{} \cite{unccas.org}} par exemple, la demande sera enregistrée, étudiée en commission et mise en place \emph{via} l'interface CCAS Web.\\
+\end{itemize}
+
+Ce type de logiciel étant indispensable aux employés des CCAS, il est vital de le maintenir à jour et d'être à l'écoute des évolutions légales, mais aussi des besoins des utilisateurs. \`A cet égard, leur revendication principale était d'avoir accès à un outil de statistiques avancé et simple d'utilisation pour pouvoir générer différentes éditions, apporter une aide décisionnelle et surtout se plier à l'obligation de fournir l'\emph{ABS}\footnote{Analyse des Besoins Sociaux.} (\emph{voir} \textbf{\ref*{cadre-legal} \nameref{cadre-legal}}).
+
+C'est à ce niveau que je suis intervenu.
+
+
+
+
+\section{Présentation du projet}
+
+Le sujet du stage portant sur l'intégration de Business Objects, nous allons voir comment le bureau d'études a raisonné pour sélectionner cette solution.
+
+\subsection{La nécessité d'intégrer une solution statistique}
+\subsubsection{Un cadre légal}
+\label{cadre-legal}
+
+Pour pouvoir effectuer un suivi de l'activité de ses services, un CCAS est légalement tenu de fournir un certain nombre de statistiques au conseil d'administration\footnote{Articles 1\ier{} et 2\ieme{} du \emph{Décret \no 95-562 du 6 mai 1995 relatif aux centres communaux et intercommunaux d'action sociale [\dots]} (\emph{voir} Annexe \ref{decret} page \pageref*{decret})} : l'ABS. Ces dernières permettent également à la structure d'éditer des rapports d'activité divers, permettant par exemple de visualiser à tout moment le montant total des aides attribuées par rapport à son budget annuel.
+
+Sur la base de cette analyse, les CCAS doivent également mettre en \oe{}uvre une action sociale générale de prévention et de développement social dans la commune.
+
+Pour ces raisons, Implicit a inclus depuis plusieurs années dans son logiciel un outil de statistiques.
+
+\subsubsection{La nécessité d'un nouvel outil}
+
+L'outil actuel est un simple requêteur intégré au site : il a été développé afin de permettre aux travailleurs sociaux n'ayant aucune connaissance en base de données d'effectuer des requêtes vers Oracle DB, via une interface graphique utilisateur (\emph{voir} Figures \ref{requeteur-1} et \ref{requeteur-2}). Le résultat se présente sous forme d'un tableau dont les en-têtes ont été sélectionnés par le gestionnaire du CCAS, à la manière d'un retour de \cverb|SELECT| de base de données.
+
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=13cm]{requeteur_1.png}
+		\caption{Requêteur -- Choix des filtres}
+		\label{requeteur-1}
+	\end{center}
+\end{figure}
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=13cm]{requeteur_2.png}
+		\caption{Requêteur -- Résultat de l'exécution}
+		\label{requeteur-2}
+	\end{center}
+\end{figure}
+
+Cependant, ce requêteur souffre d'un certain nombre de problèmes : bien qu'intuitif pour l'utilisateur, il présente de nombreux bugs. De plus, les délais de réponse sont inadaptés et ses fonctionnalités sont assez limitées par rapport aux besoins.
+
+Forts de ces éléments, la décision a finalement été prise d'abandonner le requêteur et d'utiliser une solution de \emph{Business Intelligence}\footnote{L'informatique décisionnelle, ou Business Intelligence (BI), est un ensemble d'outils destinés à offrir une vue d'ensemble de l'activité traitée à un dirigeant d'entreprise, et à donner une aide à la décision.} éprouvée, à intégrer directement dans CCAS Web. Parmi différents éditeurs --- Oracle (OBI), Microsoft (SQL Server Analysis Services), etc. --- Implicit a choisi d'implémenter \emph{Business Objects}, une solution développée par SAP.
+
+
+
+
+\subsection{Présentation de l'outil \emph{Business Objects} de SAP}
+
+Business Objects est une solution de Business Intelligence. \`A l'origine française, elle a été rachetée en 2008 par l'Allemand SAP --- il s'agit du plus gros concepteur de logiciels en Europe, et du quatrième mondial \cite{top100}.
+
+Il existe en version client lourd, mais dans le cas de CCAS Web, c'est l'interface navigateur qui va être utilisée. Il sera ainsi plus aisé de l'intégrer directement dans l'application d'Implicit.
+
+Il propose, principalement, un outil de construction de requêtes et de mise en page des résultats, sous forme de rapports (\emph{voir} Figure \ref{report-bo}) ou de tableaux de bord. Les requêtes s'appuient sur une base de données externe, couplée à BO via un \emph{Univers} : il s'agit du liant entre les données brutes de la base et l'applicatif métier, plus parlant aux décisionnaires.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{apercu-report-bo.png}
+		\caption{Exemple d'un report BO}
+		\label{report-bo}
+	\end{center}
+\end{figure}
+
+Business Objects est un produit très abouti, relativement complexe --- c'est d'ailleurs pour simplifier son utilisation qu'il m'a été demandé de l'intégrer à CCAS Web --- mais la manière de construire les requêtes est assez intuitive pour l'utilisateur final (\emph{voir} Figure \ref{requeteur-bo}) : c'est là que réside sa force.
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[width=\textwidth]{requeteur_bo.png}
+		\caption{L'interface de création de requête BO : la sélection de filtres et d'intitulés se fait par cliqué-glissé}
+		\label{requeteur-bo}
+	\end{center}
+\end{figure}
+
+Si le choix de l'équipe dirigeante d'Implicit s'est porté sur Business Objects plutôt qu'un autre outil d'informatique décisionnelle, au delà des conditions des contrats qui ont pu être négociées et des accords financiers, c'est parce que certains CCAS sont déjà équipés de cet outil, et que la transition entre l'ancien requêteur et Business Objects pourrait se faire plus en douceur. En effet, Implicit utilisait déjà BO depuis plusieurs années au vu de sa position de leader, et le proposait à ses clients, mais sans intégration poussée à CCAS Web.
+
+De plus, Business Objects supporte de très nombreux outils externes, tel que le connecteur \emph{GeoBI}\footnote{GeoBI, proposé par Business Geografic, est une extension cartographique pour Business Objects de SAP.}, qui constitue l'étape suivante de l'intégration BO que j'ai eu à effectuer dans CCAS Web.
+
+Business Objects gère aussi une notion de droits et de groupes : basiquement, il y a trois niveaux d'utilisateurs (en plus de l'administrateur) :
+\begin{itemize}
+	\item Le créateur de documents : cet utilisateur dispose des droits de création/édition d'un document. Il peut notamment accéder à l'interface de création de requête (\emph{voir} Figure \ref{requeteur-bo}).
+	\item Le lecteur simple : cet utilisateur ne peut que consulter un document déjà généré. 
+	\item Un lecteur avancé : il ne peut pas modifier le document, mais peut affecter des valeurs aux différents filtres pré-sélectionnés.
+\end{itemize}
+
+L'intégration de Business Objects dans CCAS Web s'adresse particulièrement aux deux derniers types d'utilisateurs : le créateur de documents aura suivi une formation afin de créer des états\footnote{Un état est une requête BO sauvegardée. Il est possible d'y appliquer à postériori des filtres sans altérer le document de manière définitive.} et sera donc à l'aise avec toutes les subtilités de BO en natif, mais les autres seront beaucoup plus novices. Il sera donc nécessaire que les différents accès via CCAS Web soient le plus intuitif possible pour l'utilisateur final.
+
+
+
+\section{Planification de la mission et méthodologie de travail}
+
+Lors de la définition du sujet du stage, mon responsable Pascal \bsc{Baligout} n'avait effectué que des recherches superficielles quant aux possibilités d'intégration. Ainsi, il ne disposait que d'une vision de surface de l'état du réalisable lorsqu'il m'a confié le projet.
+
+S'agissant de recherche appliquée, un projet de Recherche \& Développement comme celui-ci peut difficilement être planifié avec précision, et établir un rétro-planning est encore plus complexe. Néanmoins, différentes étapes ont pu être identifiées, pour chacun des objectifs du stage (\emph{voir} \ref{etapes-bo} et \ref{etapes-geobi}) : 
+\begin{itemize}
+	\item L'exploitation des états BO directement dans la solution logicielle est l'objectif  qui devra impérativement être atteint avant l'échéance du stage, au 31 juillet.
+	\item L'intégration des solutions de cartographie de l'entreprise \emph{Business Geografic} est considérée comme une activité annexe. Implicit a prévu de mettre en place cet outil à terme, mais cet objectif n'étant pas prioritaire sur l'implémentation de BO dans CCAS Web, il pourra être différé sans problème. 
+\end{itemize}
+
+Par ailleurs, il faut noter que j'ai travaillé de façon indépendante sur ce projet : en effet, bien qu'intégré au sein de l'équipe technique, j'ai été relativement autonome sur ces missions. Pascal \bsc{Baligout} (chef de projets) et Emmanuel \bsc{Vattat} (responsable du bureau d'études) m'ont donc fait confiance sur de nombreux éléments du développement.
+
+Nous avons néanmoins eu des réunions et des comités réguliers (un à deux par mois) pour faire le point, définir les besoins, valider le cahier des charges (\emph{voir} Annexe \ref{CdC} page \pageref*{CdC}), etc. J'ai également profité de suivis hebdomadaires sur l'état d'avancement.
+
+
+% Ajouter passage sur GéoBI Si besoin
+
+

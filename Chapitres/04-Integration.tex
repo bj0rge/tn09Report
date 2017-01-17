@@ -1,0 +1,484 @@
+\chapter{L'intégration Business Objects}
+La première étape de mon stage, et la plus longue, a été l'intégration de Business Objects dans CCAS Web.
+
+
+\section{Organisation temporelle}
+
+Initialement, la durée d'intégration prévue était celle de l'intégralité de la période couverte par ma présence en entreprise, à savoir 6 mois. Néanmoins, j'ai eu besoin de moins de temps pour remplir cette mission.
+
+La phase d'intégration de BO n'a finalement duré que quatre mois et demi : de début février à mi-juin,  j'ai pu travailler en autonomie sur ce projet. De la recherche des fonctionnalités mises à disposition par l'API au développement en lui-même au sein de l'application, j'ai été amené à effectuer différentes tâches (\emph{voir} Figure \ref{repartition-bo}).
+
+\begin{figure}[htbp]
+	\begin{center}
+%		\includegraphics[width=10cm]{pie-chart.jpg}
+		\includegraphics[width=7.2cm]{pie-chart-temps.jpg}
+		\caption{Charge de travail pour l'intégration de BO}
+		\label{repartition-bo}
+	\end{center}
+\end{figure}
+
+
+Parmi mes tâches principales, on peut voir que l'analyse, la rédaction de documents et le développement représentent à eux seuls près de 75\% de la charge de travail. Cette dernière a été principalement axée sur le développement de l'application demandée, mais on voit qu'une partie non négligeable concerne les tâches annexes, à savoir la recherche d'information (analyse) et la rédaction de documents divers (cahier des charges, manuel utilisateur\dots).
+
+On peut constater que ma mission au sein d'Implicit a été très complète et les tâches diversifiées.
+
+
+
+
+\section[L'intégration : choix de programmation et difficultés]{\'E{}tapes de l'intégration, choix de programmation et difficultés rencontrées}
+% Choix de prog : langages, dialogues avec l'API...
+\label{etapes-bo}
+
+Un des intérêts du stage que j'ai effectué chez Implicit est que j'ai pu étudier et proposer moi-même une partie des technologies utilisées. Elles ont fait l'objet d'une démarche réfléchie.
+
+
+\subsection{Etude du réalisable}
+
+Avant toute chose, il m'a fallu opérer une étude du réalisable. En effet, Pascal \bsc{Baligout} s'était renseigné sur l'intégration de BO via la sollicitation de webservices\footnote{Un \emph{webservice} (ou service web en français) est une méthode de communication entre deux appareils électroniques via un réseau. Cette méthode est normalisée via le protocole SOAP, qui décrit un mode de communication vers des objets distants.}, afin de s'assurer que le projet était à ma portée. Mais il n'était pas allé plus loin et il m'appartenait donc d'étudier ce que cette technologie mettait à disposition et ce qui restait hors d'atteinte.
+
+Dans un premier temps, je ne me suis pas du tout attaché à l'applicatif métier qu'est CCAS Web et me suis concentré sur les possibilités offertes par l'API BO.
+
+Cette API repose sur l'architecture REST.
+
+
+\subsubsection{L'architecture REST}
+\label{soap}
+
+
+Elle est très bien adaptée au web dans la mesure où ses contraintes d'exécution reposent, entre autres, sur l'environnement client-serveur et une mise en cache.
+
+Il s'agit simplement d'envoyer une requête formatée au serveur, et d'attendre un éventuel retour. L'avantage de cette architecture est qu'elle ne nécessite pas de connaissance approfondie du fonctionnement interne du serveur, ni d'authentification préalable (si nécessaire, elle peut s'effectuer également par webservice). Ces requêtes, en HTTP, s'effectuent de la manière suivante : il faut spécifier l'adresse à solliciter et le type de requête (\cverb|GET|, \cverb|POST|, \cverb|PUT|, ou encore \cverb|DELETE|).
+
+On peut y adjoindre un ou des paramètres d'en-tête sous la forme de couple clé-valeur, ainsi qu'un corps de texte en XML ou JSON. L'en-tête comme le corps de texte sont facultatifs.
+
+
+\subsubsection{Premiers appels au serveur}
+
+
+Afin d'effectuer mes tests sans avoir à développer un mini-projet, j'ai utilisé une application de Google Chrome : \emph{Advanced REST Client}. Cet outil à intégrer au navigateur (\emph{voir} Figures \ref{requete-rest} et \ref{retour-rest}) permet de solliciter de façon très simple le serveur BO et de visualiser les retours.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=10cm]{rest-client1.png}
+		\caption{Envoi d'une requête avec \emph{Advanced REST Client}}
+		\label{requete-rest}
+	\end{center}
+\end{figure}
+
+
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=10cm]{rest-client2.png}
+		\caption{Retour d'une requête sous \emph{Advanced REST Client}}
+		\label{retour-rest}
+	\end{center}
+\end{figure}
+
+Ainsi, j'ai pu tester l'API BO vers le serveur REST. En effet, les ressources SAP sont très prolixes, et principalement en anglais, j'ai donc passé ma première semaine au sein de l'entreprise à collecter les fichiers mis à disposition et à les étudier.
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=3cm]{advanced-rest-client.png}
+		\caption{\emph{Advanced Rest Client} dans le lanceur d'applications Chrome}
+		\label{arc-logo}
+	\end{center}
+\end{figure}
+
+Ces tests m'ont conduit à rédiger un document condensant toutes les possibilités offertes par BO ainsi que leurs moyens de réalisation.
+
+
+\subsubsection{Rédaction de l'étude}
+
+Cette étude (\emph{voir} Annexe \ref{ann:etude-du-realisable} page \pageref{ann:etude-du-realisable}) a été la base de travail qui a permis de voir l'étendue des possibilités offertes par l'API REST de BO.
+
+Elle a été le point de départ du projet : sans elle, le comité de pilotage n'aurait pas pu savoir quelle serait la limite dans l'intégration de BO à CCAS Web. J'y ai donc recensé ce que permettait l'API, mais également ce qu'il était impossible de réaliser via requêtes REST. Par exemple, nous nous sommes résignés à ne pas gérer la création d'utilisateur BO et l'attribution des droits dans l'application CCAS Web car il aurait fallu utiliser impérativement l'API java, trop lourde à gérer, en particulier pour ce seul besoin.
+
+
+\subsection{Prise en main de WebDev}
+
+Les logiciels d'Implicit ne reposent pas sur du PHP, mais sur l'AGL\footnote{Le terme AGL, ou Atelier de Génie Logiciel, désigne \og un ensemble de programmes informatiques permettant eux-mêmes de produire des programmes de manière industrielle \fg{} (Source : \href{http://fr.wikipedia.org/wiki/Atelier_de_g\%C3\%A9nie_logiciel}{Wikipedia})} du français PCSoft : \emph{WebDev} (\emph{voir} Figures \ref{procedure-wlangage} et \ref{webdev}). Il présente l'avantage d'utiliser le WLangage ---  langage commun aux environnements web, client/serveur et mobile de cet éditeur --- ce qui permet de porter très facilement un site web vers un logiciel Windows.
+
+\begin{figure}[H]
+	\begin{lstlisting}[style=wlangage]
+	PROCEDURE vGénèreFils(oBo est un objet dynamique gBO, °\color{wb-comm}{...}°
+				ARB_arbre = Null, bGénèrePetitFils est un booléen = Faux, °\color{wb-comm}{...}°	
+				cFilsAignorer est une chaîne = °\color{wb-str}{""}°)
+	\end{lstlisting}
+	\centering
+		\caption{Exemple de définition d'une méthode en WLangage}
+		\label{procedure-wlangage}
+\end{figure}
+
+La prise en main du WLangage en lui-même est assez aisée : proche du langage naturel, le développement se fait en français. Cependant, de nombreux éléments évidents à programmer avec d'autres langages ne le sont pas du tout sous WebDev ; c'est le cas pour une requête REST native par exemple (\emph{voir} \textbf{\ref*{pb-requete-rest} \nameref{pb-requete-rest}}).
+
+\begin{figure}[htb]
+	\begin{center}
+		\hspace*{-3cm}
+		\includegraphics[width=19cm]{environnement-webdev.png}
+		\caption{Environnement de travail WebDev}
+		\label{webdev}
+	\end{center}
+\end{figure}
+
+J'ai donc lu le livret d'auto-formation à WebDev 15 \cite{autoformation} afin de me familiariser avec le WLangage et ses subtilités, avant d'installer une version du projet CCAS Web sur ma machine.
+
+Dans le même temps, il a fallu s'intéresser à ce qu'il faudrait intégrer de façon concrète. Cela passe par une analyse des besoins des utilisateurs.
+
+
+\subsection{Analyse des besoins utilisateurs}
+
+\'Etant dans l'impossibilité de monter un comité utilisateur ou même de rencontrer les usagers d'un CCAS, j'ai pu participer à deux réunions afin de déterminer l'orientation du projet :
+
+
+La première le 11 mars 2014 avec Stéphane \bsc{Bourand} (responsable du service qualité) et Pascal \bsc{Baligout} (chef de projets). Le but était avant tout de m'exposer la vision qu'ils avaient de l'implémentation de BO.
+
+La seconde a eu lieu le 14 mars 2014 en présence de Pascal \bsc{Baligout}, Emmanuel \bsc{Vattat} (responsable du bureau d'études), Farid \bsc{El Kadiri} (commercial sur la gamme CCAS Web), et Ruddy \bsc{Derosiers} (responsable du service assistance). La rencontre de ces acteurs proches des utilisateurs a permis de comprendre leurs envies et attentes.
+
+
+
+\vspace{\baselineskip}
+A l'issue de ces deux réunions, il est ressorti plusieurs désirs et remarques. Elles serviront de base à mon développement.
+
+\begin{itemize}
+	\item Au lancement du logiciel, il n'y a aucun point de menu "Statistiques" dans l'application CCAS Web. Il faut commencer par en ajouter un puisqu'il s'agit de la principale lacune de l'application.
+	\item Il pourrait être intéressant d'accéder directement aux documents stockés dans BO puisqu'il peut être utilisé comme une GED\footnote{\og{}La Gestion électronique des documents désigne un procédé informatisé visant à organiser et gérer des informations et des documents électroniques.\fg{} (Source : \href{http://fr.wikipedia.org/wiki/Gestion_\%C3\%A9lectronique_d'informations_et_de_documents_de_l'entreprise}{Wikipedia})}.
+	\item Il faut pouvoir visualiser directement un report BO, soit via l'interface web native, soit --- et cette solution est à privilégier si possible --- en le téléchargeant. Cela signifie qu'il sera également nécessaire de saisir les valeurs des filtres d'un report directement dans CCAS Web (ces valeurs sont assimilables au \cverb|_x_| dans le \cverb|WHERE filter = _x_| d'une requête SQL).
+	\item Si possible, ces invites seront pré-remplies en fonction du module dans lequel se trouve l'utilisateur (par exemple saisir automatiquement le numéro d'un dossier lorsqu'on le consulte).
+\end{itemize}
+
+Suite à ces observations, je les ai formalisées dans un cahier des charges afin de partir sur des bases de programmation saines.
+
+
+\subsection{Rédaction du cahier des charges et maquettage}
+
+Document interne destiné à poser les règles de construction depuis les fondations jusqu'aux détails les plus fins, le cahier des charges doit faire preuve d'une précision absolue.
+
+Au sein d'Implicit, il est composé aussi bien des informations techniques et fonctionnelles que graphiques. Ainsi, de nombreuses maquettes ont pu y être insérées (\emph{voir} Figure~\ref{balsamiq-gfi}), et il m'a fallu me projeter dans la position de l'utilisateur final afin de rendre chacune des nouvelles fonctionnalités à implémenter la plus intuitive possible. Cet exercice est d'autant plus difficile qu'à ce stade aucun développement n'a encore été commencé.
+
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[width=\textwidth]{balsamiq-gfi.png}
+		\caption{Maquette d'une nouvelle fenêtre dans l'application}
+		\label{balsamiq-gfi}
+	\end{center}
+\end{figure}
+
+J'ai donc rédigé ce cahier des charges qui a bénéficié de plusieurs mises à jour : il a fait la navette entre le chef de projets, le responsable du bureau d'études et moi. Cela m'a permis d'obtenir une version finale validée (\emph{voir} Annexe \ref{CdC} page \pageref*{CdC}).
+
+
+
+
+\subsection{Phase d'intégration}
+
+L'intégration de BO à CCAS Web a été la partie principale de mon stage, et la plus longue. C'est lors de celle-ci que j'ai été confronté à la majorité des difficultés que j'ai pu avoir lors de ces six mois.
+
+Cette phase peut être divisée en plusieurs étapes principales.
+
+\subsubsection{Le choix de la technologie du requêtage REST}
+\label{pb-requete-rest}
+
+La décision d'utiliser l'API REST de BO n'a pas été de mon ressort : elle a été motivée par le fait que les échanges sont rapides, que l'installation sur le serveur n'est pas particulièrement lourde et qu'elle permet une grande diversité de fonctionnalités. Je ne la détaillerai donc pas plus ici.
+
+En revanche, on m'a laissé la liberté du choix de la technologie à utiliser pour effectuer ces requêtes, ainsi, de nombreuses possibilités m'étaient offertes. Ayant rencontré des problèmes sur la plupart d'entre elles, cela m'a conduit à en éliminer un grand nombre.
+
+\paragraph{~\textbullet{}~Utiliser les fonctionnalités natives WebDev} a été ma première initiative. En effet, l'API de PCSoft propose deux fonctions : \cverb|HTTPRequête()| et \cverb|HTTPEnvoieFormulaire()|, mais qui malheureusement ne sont pas assez complètes.
+
+La première fonction interdit l'utilisation de requêtes de type \cverb|UPDATE| ou \cverb|DELETE| ainsi que des en-têtes multiples, et ne me permet donc pas de solliciter tous les types de webservices. Et si la seconde autorise les en-têtes multiples et les quatre types existants, il est en revanche impossible d'y adjoindre un corps de requête, ce qui est bien plus bloquant.
+
+En conséquence, j'ai tenté d'envoyer un e-mail à l'assistance de la société éditrice, PCSoft, mais la seule réponse que nous ayons reçue était bancale, ce qui m'a encouragé à passer à une autre technologie.
+
+
+\paragraph{~\textbullet{}~Développer une appli externe en PHP} : il s'agit de la solution la plus souvent proposée sur les forums d'entraide à WebDev, officiel ou communautaires. Envoyer une requête HTTP se fait alors très simplement, mais mon responsable a rejeté cette possibilité. En effet, il faudrait installer un serveur PHP à côté de celui exécutant WebDev, ce qui serait excessif pour un seul besoin.
+
+Je me suis donc tourné vers un langage nativement accepté par WebDev.
+
+
+\paragraph[JavaScript, jQuery et Ajax]{~\textbullet{}~JavaScript, jQuery et Ajax}
+\label{js-jq-ajax}
+En effet, l'Ajax est une architecture qui permet d'effectuer une requête en sollicitant une autre page via le \emph{XMLHttpRequest}\footnote{\og XMLHttpRequest est un objet JavaScript qui a été créé par Microsoft [...] pour récupérer facilement des données via HTTP.\fg{} (Source : \href{https://developer.mozilla.org/fr/docs/XMLHttpRequest}{developer.mozilla.org})}. L'utilisation de cet objet est grandement facilitée par la bibliothèque libre jQuery, qui est déjà utilisée par CCAS Web.
+
+J'ai ainsi réalisé une classe JavaScript permettant d'effectuer des requêtes spécifiques à BO (\emph{voir} Figure \ref{apercu-js}).
+
+\begin{figure}[htbp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{apercu-js.png}
+		\caption{Extrait de la classe JavaScript de gestion de BO}
+		\label{apercu-js}
+	\end{center}
+\end{figure}
+
+Mais j'ai à nouveau été confronté à deux problème : l'un majeur, et l'autre, moins important, soulevé par mon responsable de stage :
+
+\begin{itemize}
+	\item Il est impossible en JavaScript de générer à la volée un fichier. En effet, avec la librairie de fonctions BO, je peux récupérer le contenu \emph{binaire} d'un pdf et rediriger la sortie standard vers un nouveau fichier. Malheureusement, sans pouvoir créer ce fichier dynamiquement, impossible de proposer à l'utilisateur de le télécharger.
+	\item Si les requêtes se font en AJAX, elle seront effectuées côté client et non côté serveur. Cela impliquerait d'autoriser auprès du serveur BO les requêtes provenant de nombreux postes au lieu d'un seul, ce qui risque de poser problème aux plus grosses structures parmi les CCAS.
+\end{itemize}
+
+Pour ces raisons, l'utilisation du JavaScript a été abandonnée, en tous cas pour la partie requête HTTP (\emph{voir} \textbf{\ref*{filtres-js} \nameref{filtres-js}}).
+
+\paragraph{~\textbullet{}~Un exécutable de type batch} est de loin ce qui m'a fourni les résultats les plus probants. WebDev étant hébergé sur un système Windows Server, il est tout à fait possible de lancer l'exécution d'un \cverb|.bat|.
+
+J'ai donc choisi l'utilitaire \emph{cURL}\footnote{\og Abréviation de Client URL Request Library : "Bibliothèque de requêtes aux URL des clients" ou See URL : "Voir URL" \fg (Source : \href{http://fr.wikipedia.org/wiki/CURL}{Wikipedia})}, une interface s'appuyant sur la bibliothèque \cverb|libcurl| permettant d'effectuer une requête HTTP et d'en récupérer son retour. Il peut donc être utilisé en tant que client REST (\emph{voir} Figure \ref{code-batch}).
+
+
+
+\begin{figure}[htbp]
+	\begin{center}
+		
+	\end{center}
+\begin{lstlisting}[style=batch]
+	°\color{bat-at}{@}°echo off	rem désactive l'affichage des commandes
+	cls			   rem efface les lignes précédentes
+	
+	rem on envoie les paramètres dans des variables
+	rem l'ajout du tilde supprime les double quote entourantes ("")
+	set requestType=%1
+	set params=%~2
+	set url=%3
+	set redirect=%4
+	
+	rem remplacement de "" par " et de #egal# par =
+	set params= %params:""=°\color{bat-str}{"}°%
+	set url= %url:#egal#==%
+	
+	curl -X "%requestType%" %params% %url% > %redirect%
+\end{lstlisting}
+	\centering
+	\caption{Code batch utilisé dans le projet}
+	\label{code-batch}
+\end{figure}
+
+
+Grâce à ces quelques lignes, j'étais alors en mesure de solliciter le serveur de webservices pour effectuer toutes les requêtes REST nécessaires. En effet, je peux ici choisir le type de requête, les différents paramètres --- et donc les différents en-têtes ---, l'adresse à attaquer, et enfin, une redirection du contenu retour dans un fichier, si besoin.
+
+L'avantage de cURL est qu'il s'agit d'une bibliothèque open-source et gratuite, y compris dans le cadre d'un usage commercial, son utilisation ne posait donc aucun problème pour l'intégration.
+
+Cette solution m'a néanmoins posé quelques soucis dans la mesure où je tombais parfois sur l'erreur cURL suivante : \cverb|curl: (27) Out of memory|. Voici ce qu'il ressort de la documentation officielle :
+\begin{quote}
+	\textsf
+	CURLE\_OUT\_OF\_MEMORY (27)
+	
+	A memory allocation request failed. This is serious badness and things are severely screwed up if this ever occurs.
+\end{quote}
+
+Je n'ai pu comprendre d'où venait cette erreur qu'après quelques temps : l'ordinateur sur lequel je travaillais ne disposait que de 2 Go de RAM et cette dernière était presque saturée lors du lancement du serveur local WebDev. C'est pourquoi l'erreur semblait survenir de manière aléatoire.
+
+J'ai solutionné plus tard cette difficulté en libérant des ressources. Ce problème ne se posera plus une fois l'implémentation déployée, puisque le serveur sera autrement plus puissant que ma machine.
+
+
+
+\paragraph{~\textbullet{}~Importer la librairie \textit{libcurl.dll}} Il s'agit de la librairie sur laquelle cURL s'appuie pour pouvoir effectuer ses requêtes, c'est pourquoi j'ai décidé de descendre encore d'un niveau. Cette bibliothèque dispose d'une API très complète, mais là encore j'ai fait face à un blocage qui m'a empêché de l'utiliser.
+
+En effet, pour pouvoir effectuer une requête avec \cverb|libcurl.dll|, il faut entre autres passer un pointeur vers une fonction callback\footnote{Un \emph{callback}, ou fonction de rappel, est une fonction passée en paramètre à une deuxième. La seconde ne connait pas par avance la première, mais peut y faire appel directement.} en paramètre. Malheureusement, à la compilation, le pointeur n'est pas reconnu et WebDev tombe.
+
+Ainsi, je suis revenu à la solution précédente (le batch) en essayant de trouver d'où venait le problème. Une fois résolu, j'ai pu avancer dans l'intégration de BO.
+
+
+\vspace{\baselineskip}
+\subsubsection{La gestion des filtres}
+\label{filtres-js}
+
+
+Lors de l'ouverture d'un report, il peut être nécessaire de restreindre sa recherche (sur un bénéficiaire particulier, une plage de dates\dots) plutôt que d'avoir l'intégralité des résultats : c'est ici qu'interviennent les filtres.
+
+\`A la construction de la requête dans BO (\emph{voir} Figure \ref{requeteur-bo}), il est possible d'appliquer des filtres : un équivalent d'une \og clause \cverb|WHERE| \fg. Ainsi, lors d'une consultation ultérieure dans l'interface native, il sera alors nécessaire d'entrer dans des champs HTML les valeurs de restriction souhaitées. Cela permettra de générer un report adapté aux besoins.
+
+Avec les webservices REST, il m'est possible de solliciter les serveurs BO et de récupérer les différentes limitations appliqués, ainsi que leurs valeurs par défaut. Cependant, j'ai été confronté à une difficulté lors du développement de l'interface pour afficher ces filtres. En effet, pour pouvoir les présenter au travailleur social, il me faudrait générer dynamiquement des champs HTML --- texte, checkboxes, liste déroulante, etc --- en fonction du type et du nombre de filtres (\emph{voir} Figure \ref{filtres-apercu}).
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[width=\textwidth]{filtres.png}
+		\caption{Demande d'accès à un report avec filtres sur l'année et le type d'aide}
+		\label{filtres-apercu}
+	\end{center}
+\end{figure}
+
+On touche ici à nouveau à une limite de WebDev : dans sa version 15, il ne permet pas de générer dynamiquement des champs de saisie avec une finesse suffisante. C'est pourquoi je me suis tourné vers le JavaScript (via sa bibliothèque jQuery) : intervenant directement sur le poste utilisateur, il peut générer dynamiquement du HTML très facilement.
+
+Il m'a donc fallu gérer deux connecteurs. On l'a vu (cf. \emph{supra}, \textbf{\ref*{js-jq-ajax} \nameref{js-jq-ajax}}), il était préférable de ne pas utiliser Ajax pour solliciter le serveur BO, mais plutôt l'application CCAS Web. Ainsi, je ne pouvais récupérer les informations des filtres en JavaScript, ni faire la demande de mise à jour avec ce même langage.
+
+Pour cette raison, il m'a fallu établir un lien entre le serveur WebDev qui va interroger BO et le navigateur client, dans lequel s'exécute le code JavaScript. Ainsi, la fenêtre présentant les filtres dispose de deux champs de saisie cachés. Lors d'une requête en vue de récupérer les filtres, WebDev écrit dans le premier champ le contenu XML renvoyé par BO, permettant ainsi au JavaScript d'accéder aux informations du document.
+
+
+
+
+\subsubsection{Interventions dans le Manager}
+
+En plus de l'intégration de BO au sens propre, j'ai eu besoin d'intervenir dans le \emph{Manager}. Il s'agit d'un projet annexe, mais néanmoins lié, qui sert notamment de lanceur à l'application, de point d'entrée vers CCAS Web. C'est également via le Manager que l'administrateur dispose d'une interface pour paramétrer le serveur ou créer un utilisateur (\emph{voir} Figure \ref{manager}).
+
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[width=10cm]{manager.png}
+		\caption{Le Manager : accès aux paramétrages}
+		\label{manager}
+	\end{center}
+\end{figure}
+
+
+Ainsi, c'est via cette application que seront enregistrées les informations du serveur BO --- telles que l'url d'accès au serveur, les ports spécifiques pour les envois de requêtes, etc. --- ou les informations de connexion d'un utilisateur BO. En effet, pour pouvoir effectuer des requêtes REST, il faut disposer d'un jeton de connexion généré à partir du login BO et du mot de passe associé, qui sont différents de ceux de CCAS Web ; c'est pour cela qu'il faut que l'administrateur lie les comptes dans le Manager.
+
+
+
+\subsubsection{Base de données}
+
+En plus des échanges avec le serveur BO, l'application CCAS Web communique avec une base de données. C'est cette dernière qui va stocker les informations de connexion au serveur BO et les couples identifiant/login de chaque utilisateur Business Objects.
+
+Il m'a donc fallu m'adapter au MCD existant (\emph{voir} Annexe \ref{mcd} page \pageref*{mcd}) en restant dans une même logique. Dans un système aussi complexe, il n'est pas aussi évident qu'il y parait d'ajouter deux simples colonnes ; en effet, de nombreux éléments dans chacune des pages de l'application sont générés en fonction du contenu des tables. Ainsi, j'ai dû m'inspirer des appels effectués vers la base depuis le \emph{framework}\footnote{Un framework est un ensemble cohérent de composants logiciels structurels, qui sert à créer les fondations ainsi que les grandes lignes de tout ou d'une partie d'un logiciel --- son architecture.} et les reproduire.
+
+En l'espèce, plutôt que d'ajouter deux colonnes \cverb|LOGIN_BO| et \cverb|PWD_BO| dans la table \cverb|OL_LOGIN| --- celle qui gère les informations d'identification de l'utilisateur --- j'ai pu m'appuyer sur trois tables différentes, mais en utilisant des colonnes déjà existantes. Ce choix a eu pour conséquence de simplifier mon développement dans le manager ---~puisque la zone concernée est générée dynamiquement d'après la base de données (\emph{voir} Figure \ref{zone-repetee}) ---, mais également de minimiser les interventions dans la structure de la base de données.
+
+
+\begin{figure}[htb]
+	\begin{center}
+		\includegraphics[width=\textwidth]{zone-repetee.png}
+		\caption{Zone générée dynamiquement par l'ajout d'une occurrence en base de données}
+		\label{zone-repetee}
+	\end{center}
+\end{figure}
+
+
+\subsubsection{Améliorations}
+
+J'ai pu proposer une idée d'amélioration qui a été acceptée : établir un token persistant. Pour mieux comprendre cette modification, quelques explications sont nécessaires.
+
+Pour la quasi-totalité des requêtes REST, un paramètre d'en-tête contenant un \emph{token}\footnote{"Token" peut être traduit littéralement par "jeton", qui a ici le sens de jeton de connexion.} valide est nécessaire. Un token est une chaine de caractères retournée par le serveur BO suite à une requête lui envoyant un login et un mot de passe. Cette chaine sera par la suite reconnue en tant que connexion valide et le serveur pourra donc répondre favorablement aux requêtes qui suivront.
+
+Il faut noter qu'un token a une durée d'expiration : pour ne pas saturer sa mémoire, le serveur purge régulièrement les jetons non utilisés. C'est pour cette raison que nous avons décidé de générer un unique jeton par page qui sera utilisé. On peut trouver trois inconvénients à cela :
+
+\begin{itemize}
+	\item Si l'utilisateur reste trop longtemps sur une même page et réutilise un jeton périmé, la requête n'aboutira pas.
+	\item \`A chaque chargement d'une page amenée à effectuer une requête, ce jeton est demandé, même s'il n'est pas utilisé.
+	\item Il en découle une perte de rapidité. En lançant un test de performance (\emph{voir} Figures \ref{bench} et \ref{bench-chart}) on s'aperçoit que de manière générale, la requête de récupération d'un token est extrêmement rapide ($\approx 20$ centièmes de seconde) mais peut parfois dépasser une seconde (cf. \emph{infra} tests 08 et 10). Ce délai est bien trop long si répété régulièrement.
+\end{itemize}
+
+
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=\textwidth]{bench.png}
+		\caption{Benchmark d'une requête de récupération du token}
+		\label{bench}
+	\end{center}
+\end{figure}
+
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=\textwidth]{bench_chart.png}
+		\caption{Durée par exécution}
+		\label{bench-chart}
+	\end{center}
+\end{figure}
+
+
+C'est pourquoi j'ai commencé à réfléchir à une alternative. La solution qui semblait la plus évidente était de ne demander qu'un seul token pour tout le projet et le réutiliser quelle que soit la page. Cependant, dans la documentation SAP, il n'existe aucun moyen de récupérer auprès du serveur BO ce délai d'expiration --- qui peut être modifié par l'administrateur. Malgré tout, j'ai pu remarquer que, dans la forme du token lui-même, on trouve une valeur égale au nombre de minutes avant destruction : \cverb|v=url,UP&66=60| (extrait). Ici, le token expire après 60 minutes.
+
+J'ai donc décidé d'utiliser ce paramètre \cverb|66| pour générer automatiquement un nouveau token si besoin. Mais n'étant pas documenté, j'ai sécurisé ce délai en hiérarchisant les priorités :
+
+\begin{itemize}
+	\item Utilisation de la valeur du token donnée par le paramètre \cverb|66|.
+	\item Si impossible, on utilise une valeur en base de données correspondant au délai d'expiration modifié par l'administrateur BO.
+	\item S'il n'existe aucune valeur en base de données, alors on utilisera la valeur par défaut, à savoir 60 minutes.  
+\end{itemize}
+
+Une fois cette solution trouvée, la phase de développement était terminée : l'intégration était maintenant en phase alpha. En attendant que le service qualité puisse mettre à l'épreuve mon programme avec des tests, j'ai rédigé le manuel utilisateur. 
+
+
+
+%Starting test 01 at:		16:05:46,20
+%Test 01 terminated at:	16:05:47,07
+%Execution time:		.87"
+%
+%Starting test 02 at:		16:05:47,07
+%Test 02 terminated at:	16:05:47,27
+%Execution time:		.20"
+%
+%Starting test 03 at:		16:05:47,27
+%Test 03 terminated at:	16:05:47,47
+%Execution time:		.20"
+%
+%Starting test 04 at:		16:05:47,47
+%Test 04 terminated at:	16:05:47,67
+%Execution time:		.20"
+%
+%Starting test 05 at:		16:05:47,67
+%Test 05 terminated at:	16:05:47,88
+%Execution time:		.21"
+%
+%Starting test 06 at:		16:05:47,88
+%Test 06 terminated at:	16:05:48,09
+%Execution time:		.21"
+%
+%Starting test 07 at:		16:05:48,09
+%Test 07 terminated at:	16:05:48,29
+%Execution time:		.20"
+%
+%Starting test 08 at:		16:05:48,29
+%Test 08 terminated at:	16:05:48,79
+%Execution time:		1.50"
+%
+%Starting test 09 at:		16:05:48,80
+%Test 09 terminated at:	16:05:49,09
+%Execution time:		.29"
+%
+%Starting test 10 at:		16:05:49,09
+%Test 10 terminated at:	16:05:52,96
+%Execution time:		3.87"
+
+
+
+
+
+\subsection{Rédaction du livret utilisateur}
+
+C'est en attendant le rendez-vous avec la société \emph{Business Geografic} (\emph{voir} \textbf{\ref*{geobi-orga}~\nameref{geobi-orga}}) que je me suis attelé à la rédaction du manuel utilisateur (\emph{voir} Annexe \ref{manuel} page \pageref*{manuel}).
+
+L'objectif était de produire une première version du document qui sera fourni aux utilisateurs en même temps que la mise à jour incluant l'intégration de BO. La consigne qui m'a été donnée est la suivante : rédiger un document d'explication pas à pas des trois profils existants --- administrateur, créateur de document, lecteur --- qui soit le plus compréhensible possible pour un novice. Il ne s'agira en revanche pas de la version définitive puisque les formateurs se le réapproprieront pour le remanier et l'adapteront au métier, mais il servira de base au document final.
+
+Dans le même temps, j'ai assisté à une réunion de présentation des nouveautés aux commerciaux de l'entreprise. Pascal \bsc{Baligout} a repris une par une les fonctionnalités apportées suite à l'intégration BO, lesquelles ont reçu un accueil très favorable de leur part.
+
+Enfin, j'ai pu passer à la dernière étape de l'intégration.
+
+
+\subsection{Phase de recettage et corrections}
+
+Le recettage est la phase de tests que le Service Qualité a fait subir au code que j'ai écrit. Ainsi, François \bsc{Marotte} a eu une semaine pour mettre à l'épreuve les pages que j'ai développées et générer un maximum d'états, y compris avec des paramètres aberrants, pour analyser les erreurs de code et les corrections à apporter.
+
+Au final, j'ai eu assez peu d'améliorations à apporter (une dizaine de points). Cela peut se comprendre par le fait que j'ai eu beaucoup plus de temps pour travailler sur ce projet que ce dont dispose habituellement l'équipe de développeurs ; j'ai ainsi pu débugger naturellement mon code au fur et à mesure de l'intégration.
+
+
+
+\section{Bilan de l'intégration et évolutions envisagées}
+
+Lors de ma dernière semaine de stage, un transfert de connaissance avec Steeve \bsc{Gaumont}, développeur sur le projet CCAS Web, a été programmé. En effet, il m'a fallu partager la technique acquise pour pouvoir la reporter dans le produit final, ou pour être à même de la maintenir.
+
+\begin{figure}[hbt]
+	\begin{center}
+		\hspace*{-2cm}
+		\includegraphics[width=(\textwidth + 4cm)]{classe_gbo.png}
+		\caption{Classe gBo dans WebDev, un des éléments transmis à Steeve}
+		\label{classe-gbo}
+	\end{center}
+\end{figure}
+
+Par ailleurs, il m'a été demandé de rédiger un document destiné aux développeurs pour y consigner tous les apports que j'ai intégré afin d'assurer un suivi dans l'application.
+
+En outre, le but de l'intégration de BO était d'apporter une fonctionnalité demandée depuis longtemps par les utilisateurs, même si elle ne concernera pas les plus petits d'entre eux. Ainsi, il est probable qu'elle évolue encore suite aux retours des différentes mairies, une fois la solution mise en production.
+
+Enfin, j'ai pu aussi proposer des pistes d'amélioration, notamment concernant une notification sur les rapports planifiés (\emph{voir} Annexe \ref{CdC}, page \pageref*{CdC}). Elles seront étudiées plus tard en fonction de la disponibilité du service développement et de l'estimation du niveau de besoin de cette nouveauté.
+
+
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{apercu-stats.png}
+		\caption{Aperçu : documents stockés dans BO visibles sous CCAS Web}
+		\label{apercu-stats}
+	\end{center}
+\end{figure}
+
+
+
+
+

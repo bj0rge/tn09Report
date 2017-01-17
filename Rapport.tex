@@ -1,0 +1,308 @@
+\documentclass[10pt]{scrreprt}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern} % Pour changer le pack de police
+\usepackage[ansinew]{inputenc}
+\usepackage[french]{babel} 
+
+\usepackage{hyperref}
+% \hypersetup{pdfborder=0}	% pour ne pas afficher les cadres rouges
+	                        % attention, les liens seront invisibles !
+% Nécessaires pour le glossaire(doit être utilisé après hyperref)                    
+%\usepackage{glossaries}
+%\makeglossaries	   
+                    
+	                        
+\usepackage{makeidx}
+\usepackage{pdfpages}
+\usepackage{lipsum}
+\usepackage{graphicx}
+\usepackage{float}	% Pour avoir le [H] sur les figures
+\usepackage{chngcntr}	% Pour s'affranchir des renumérotations à 1 des figures en 
+						% changement de chapitre
+\usepackage{fancyhdr}
+\usepackage{numprint}
+
+% Pour encadrer
+\usepackage{fancybox} 
+
+% Couleurs
+\usepackage{color}
+	\definecolor{code-bg}{rgb}{.16,.19,.2}
+	\definecolor{code-norm}{rgb}{.9,.9,.9}
+	
+	\definecolor{wb-nom-proc}{rgb}{0,.51,.63}
+	\definecolor{wb-nom-var}{rgb}{.15,.5,.05}
+	\definecolor{wb-constante}{rgb}{0,0,1}
+	\definecolor{wb-chaine}{rgb}{.63,.05,.51}
+	\definecolor{wb-commentaire}{rgb}{.5,.5,.5}	
+	\definecolor{comm}{rgb}{.4,.45,.48}		
+	
+	\definecolor{wb-proc}{rgb}{0,.51,.63}
+	\definecolor{wb-var}{rgb}{.15,.5,.05}
+	\definecolor{wb-const}{rgb}{0,0,1}
+	\definecolor{wb-str}{rgb}{.63,.05,.51}
+	\definecolor{wb-comm}{rgb}{.5,.5,.5}
+	
+	\definecolor{bat-kw}{rgb}{.57,.78,.39}
+	\definecolor{bat-str}{rgb}{.2,.38,.62}
+	\definecolor{bat-at}{rgb}{.82,.85,.31}
+	\definecolor{bat-cmd}{rgb}{1,.8,.13}
+	
+	\definecolor{cverb-bg}{rgb}{.96, .96, .96}
+	\definecolor{cverb-border}{rgb}{.89,.89,.89}
+
+% Mise en forme des langages
+\usepackage{listings}
+	\lstset{
+		basicstyle=\color{code-norm}\small\ttfamily, %\footnotesize
+		numbers=left,
+		numberstyle=\normalsize,
+		numbersep=7pt,
+		escapechar={°},
+		backgroundcolor=\color{code-bg}, 
+		numberstyle=\tiny\color{code-bg},
+		commentstyle=\color{comm},
+		tabsize=2
+	}
+	\lstdefinestyle{batch}{
+		language={[WinXP]command.com},
+		morekeywords={azerty},
+	    keywordstyle=\color{bat-kw},
+	    stringstyle=\color{bat-str},
+	    keywords=[2]{@},
+	    keywords=[3]{\%1,\%~2,\%3,\%4, \%params\%, \%url\%, \%redirect\%},
+	    keywords=[4]{curl},
+	    keywordstyle=[2]\color{bat-at},
+	    keywordstyle=[3]\color{bat-str},
+	    keywordstyle=[4]\color{bat-cmd}
+	}
+	\lstdefinestyle{wlangage}{
+		basicstyle=\color{black}\small\ttfamily,
+		backgroundcolor=\color{white},
+	    commentstyle=\color{comm},
+	    keywordstyle=\color{wb-proc},
+	    keywords={vGénèreFils},
+	    keywords=[2]{oBo, ARB\_arbre, bGénèrePetitFils, cFilsAignorer, ","},
+	    keywords=[3]{Faux},
+	    keywordstyle=[2]\color{wb-var},
+	    keywordstyle=[3]\textit{\color{wb-const}}
+	}
+
+% Pour pouvoir utiliser la commande cverb|foo| au lieu de \verb|foo| et avoir une présentation plus jolie
+\usepackage{newverbs}
+\newverbcommand{\cverb}
+  {\begin{lrbox}{\verbbox}}
+  {\end{lrbox}\fcolorbox{cverb-border}{cverb-bg}{\box\verbbox}}
+
+
+% Chemin des images
+\graphicspath{{Images/}}
+% Profondeur de la table des matières
+\setcounter{tocdepth}{1}
+
+% Infos
+\title{Rapport de stage TN09}
+\author{Bastien \bsc{Jorge}}
+\date{14 avril 2014} % Pour mettre la date du jour, tapez \today 
+
+% Application de l'en-tête et pied de page
+\fancypagestyle{monstyle}{
+	\fancyfoot[C]{\thepage}
+	% \rhead{Bastien \bsc{Jorge}}
+	% \fancyhead[L]{\leftmark}
+	\fancyhead[L]{\leftmark{} | Bastien \bsc{Jorge}}
+	\fancyhead[R]{\includegraphics{logo-utt-little.jpg}}
+
+	% Renommage du sommaire, on dégage "<Chapitre"> dans l'en-tête, changement des puces
+	\addto\captionsfrench{\renewcommand{\contentsname}{Sommaire}}
+	\addto\captionsfrench{\renewcommand{\chaptername}{}}
+	\addto\captionsfrench{\renewcommand{\labelitemi}{\textbullet}}
+}
+\pagestyle{monstyle}
+
+
+% Création de l'environnement de remerciements
+\newenvironment*{remerciements}{%
+\renewcommand*{\abstractname}{Remerciements}
+\begin{abstract}
+}{\end{abstract}}
+
+% Numérotation des figures sans la référence à la partie
+\renewcommand{\thefigure}{\arabic{figure}}
+\counterwithout{figure}{chapter}
+% A TESTER
+\counterwithout{table}{chapter}
+\counterwithout{footnote}{chapter}
+
+
+
+% LaTeX commence l'enregistrement de l'index
+\makeindex
+
+
+
+
+\begin{document}
+
+% Glossaire, pas utilisé
+%\input{Glossaire}
+% Page de garde
+\includepdf{Couverture/Page_de_garde.pdf}
+
+% Résumé du rapport ##### ATTENTION A LA NUMEROTATION SI REACTIVE ! ####
+%\begin{abstract}
+%	\input{Chapitres/Resume}
+%\end{abstract}
+
+% Pas de numérotation à partir d'ici
+\pagenumbering{gobble}
+
+% Remerciements
+\begin{remerciements}
+\chapter*{Remerciements}
+
+Je tiens tout d'abord à remercier Richard \bsc{Thouvenot} pour m'avoir offert l'opportunité unique de piloter un projet en relative autonomie durant mon stage, ainsi que celle d'avoir pu intégrer une entreprise au cadre aussi agréable que celui d'Implicit.
+
+\vspace{\baselineskip}
+
+Je remercie tout particulièrement Pascal \bsc{Baligout}, mon responsable, qui a effectué un suivi régulier de mes progressions. En me confiant ces missions, il m'a fait confiance sur tous les points et m'a donné carte blanche la plupart du temps.
+
+\vspace{\baselineskip}
+
+Je tiens également à remercier Emmanuel \bsc{Vattat} pour le suivi enrichissant qu'il a pu avoir sur mon stage, et pour avoir été aussi attentif à ce que mes différentes activités au sein de l'entreprise correspondent au mieux à mon projet professionnel.
+
+\vspace{\baselineskip}
+
+Je veux remercier Pierre \bsc{Beauseroy} pour avoir pris sur son temps et être venu me visiter à Saint-Martin sur le Pré, et s'être assuré du bon déroulement de mon stage.
+
+\vspace{\baselineskip}
+
+Je remercie également Amélie, Fabien, Steeve, Mickael, Grégory, Jérémy et Christophe, l'équipe d'analystes-développeurs, pour l'aide apportée au quotidien et l'ambiance très agréable tout au long de ces six mois.
+
+\vspace{\baselineskip}
+
+Je veux aussi remercier Isabelle \bsc{Maitre} pour son soutien régulier depuis mon entrée à l'Université de Technologie de Troyes et tout particulièrement durant ce stage.
+
+\vspace{\baselineskip}
+
+Je remercie enfin Margaux et mes parents pour leur relecture attentive et l'aide à la rédaction de ce rapport.
+
+\end{remerciements}
+
+
+% Glossaire
+%\printglossaries
+%Sommaire
+\tableofcontents
+
+
+
+
+\part{Rapport}
+
+% reprise numérotation à 5
+\pagenumbering{arabic}
+\setcounter{page}{4}
+\input{Chapitres/01-Intro}
+\input{Chapitres/02-Presentation_entreprise}
+\input{Chapitres/03-Presentation_stage}
+\input{Chapitres/04-Integration}
+\input{Chapitres/05-GeoBI}
+\input{Chapitres/06-Conclusion}
+
+
+
+
+%% Saut de page
+%\newpage
+%\pagenumbering{gobble}
+%\thispagestyle{empty}
+%\strut
+%\newpage
+
+\newpage
+\pagenumbering{gobble}
+% Annexes
+\appendix
+\part{Annexes}
+
+% Masquer le contenu des annexes dans le toc
+\let\oldaddtocontents\addtocontents \renewcommand{\addtocontents}[2]{}
+
+\input{Annexes/01-Fiche_commerciale}
+\input{Annexes/02-Etude_du_realisable}
+
+\includepdf{Documents/empty.pdf}
+
+\input{Annexes/03-CdC}
+\input{Annexes/04-Decret_ccas}
+
+\includepdf{Documents/empty.pdf}
+
+\input{Annexes/05-MCD}
+\input{Annexes/06-Livret_utilisateur}
+
+
+
+
+
+
+
+
+
+
+
+% Saut de page
+\newpage
+\pagenumbering{gobble}
+\thispagestyle{empty}
+\strut
+\newpage
+
+
+\listoffigures
+%\listoftables
+
+% Si un index des thèmes a été fait, on l'imprime
+\printindex
+
+% Saut de page
+\newpage
+\pagenumbering{gobble}
+\thispagestyle{empty}
+\strut
+\newpage
+
+
+% Biblio
+\nocite{*}
+
+\bibliographystyle{plain} % Le style est mis entre accolades.
+\bibliography{biblio} % mon fichier de base de données s’appelle biblio.bib
+% \bibliography{biblio_trash} % biblio non conservée
+\vspace{5.3cm}
+
+
+
+
+
+
+\boxput*(0,1){
+\colorbox{white}{\`A Propos}
+}{
+\setlength{\fboxsep}{10pt}
+\fbox{\begin{minipage}{\textwidth}
+Ce document a été réalisé en \LaTeX{} sous Windows avec TeXStudio par Bastien \bsc{Jorge} et a été compilé grâce à MiK\TeX.\\
+Le style s'appuie sur le package open-source \texttt{koma-script}
+\end{minipage}}
+}
+
+% Saut de page
+\newpage
+\pagenumbering{gobble}
+\thispagestyle{empty}
+\strut
+\newpage
+
+
+\end{document}

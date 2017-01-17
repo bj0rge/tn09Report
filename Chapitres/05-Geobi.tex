@@ -1,0 +1,255 @@
+\chapter{L'implémentation de GeoBI}
+
+Ma mission principale ayant été terminée plus tôt que prévue, j'ai pu m'atteler à la seconde tâche de mon stage : implémenter le connecteur GeoBI (cf. \emph{infra}, \textbf{\ref*{pq-geobi}~\nameref{cquoi-geobi}} pour comprendre ce connecteur).
+
+
+\section{Organisation temporelle}
+\label{geobi-orga}
+
+L'organisation de cette deuxième mission a été moins évidente du fait de la nécessité de rencontrer la société \emph{Ciril}\footnote{Ciril est le groupe propriétaire de l'éditeur Business Geografic, qui propose notamment GeoBI parmi sa gamme progicielle.} avant de commencer l'intégration. En effet, étant localisée à Lyon, il a fallu convenir d'une rencontre à une date durant laquelle leur équipe de développeurs, mon responsable et moi-même étions disponibles.
+
+Ce rendez-vous pris, nous avons pu récupérer les informations et les ressources fournies par Business Geografic. Les tâches ont été réparties ainsi :
+
+\begin{itemize}
+	\item Lecture des différents manuels utilisateurs fournis par Business Geografic.
+	\item Installation de GeoBI sur le serveur Tomcat de BO et paramétrage de l'application.
+	\item Téléchargement puis importation des couches cartographiques.
+	\item Création de nos propres fichiers de cartographie. % Shapefile (python)
+	\item Présentation du réalisable à Richard \bsc{Thouvenot}, DG d'Implicit.
+\end{itemize}
+
+
+
+
+
+\section{Choix d'implémentation et difficultés rencontrées}
+\label{etapes-geobi}
+
+Ici, peu de développement aura été nécessaire. S'agissant d'une surcouche à BO, il sera principalement question de paramétrages.
+
+
+\subsection{Pourquoi GeoBI ?}
+\label{pq-geobi}
+% Démo web du connecteur en confcall
+
+Dans un premier temps, nous allons voir ce qu'est GeoBI réellement, pour ensuite en comprendre l'utilité.
+
+\subsubsection{Découverte de GeoBI}
+
+Le 11 février 2014, soit une semaine après mon arrivée dans l'entreprise, avait été programmé un webinar\footnote{Un webinar est une conférence qui se tient à travers le réseau Internet.} animé par \emph{Décivision}, une SSII spécialisée en informatique décisionnelle et partenaire distributeur de SAP Business Objects.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=10cm]{decivision.png}
+		\caption{Logo de l'entreprise Décivision}
+		\label{logo-decivision}
+	\end{center}
+\end{figure}
+
+Cette webconférence avait pour principal objet de présenter les nouveautés apportées par la version 4.1 de BO (alors sortie depuis peu) ; mon objectif personnel était différent puisque je m'étais fixé comme but de mieux appréhender cet outil, découvert seulement quelques jours auparavant.
+
+Néanmoins, lors de cette formation à distance, les intervenants ont présenté une fonctionnalité qui a rapidement attiré l'attention de Pascal \bsc{Baligout} et d'Emmanuel \bsc{Vattat} : une surcouche à BO permettant de produire de la statistique géographique. Cette extension ne leur était alors déjà pas inconnue, mais c'était la première fois qu'elle s'intégrait avec la version web de Business Objects.
+
+Il s'agissait de GeoBI.
+
+
+
+\subsubsection{GeoBI, surcouche de BO}
+\label{cquoi-geobi}
+% Qu'est-ce que c'est
+
+GeoBI est un plugin cartographique de BO développé par Business Geographic. Il s'agit d'une extension de Business Intelligence facilitant encore plus les prises de décision en proposant à l'utilisateur un support très visuel, reposant sur une carte géographique.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[height=45px]{logo-business-geografic.jpg}
+		\hspace*{5px}
+		\includegraphics[height=35px]{logo-geobi.jpg}
+		\caption{Logos de la société Business Geografic, et de leur produit GeoBI}
+		\label{logo-geobi}
+	\end{center}
+\end{figure}
+
+Le \href{http://www.geo-bi.com/fr/}{site web de GeoBI} décrit son logiciel comme \og un outil d'analyse, d'aide à la décision et de simulation cartographique, exploitant directement les données contenues dans \emph{[les]} rapports d'Entreprise BusinessObjects \fg \cite{geobi}.
+
+Son principal attrait est donc d'offrir une solution pleinement intégrée aux données présentes dans BO. 
+
+
+\subsubsection{L'importance d'un connecteur cartographique}
+% Utilité
+
+Toujours dans un souci de proposer aux utilisateurs une application la plus complète possible, il apparait intéressant d'intégrer cette solution au sein de CCAS Web. Dans la même optique d'obligation légale des CCAS de fournir une Analyse des Besoins Sociaux (ABS) annuellement, l'extension à BO est très intéressante et permet de nombreuses possibilités. L'intérêt là encore est de ne pas réinventer la roue et de s'appuyer sur des technologies éprouvées.
+
+On constate par exemple très rapidement l'importance d'une telle extension pour des localités qui travaillent beaucoup sur de l'intelligence géographique : il suffit de comparer les données statistiques brutes (\emph{voir} Figure \ref{exemple-geobi-tab} page suivante) avec les mêmes reportées sur une carte (\emph{voir} Figure \ref{exemple-geobi-carto} page suivante) pour se rendre compte du côté indispensable de GeoBI.
+
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=5.2cm]{exemple-geobi-tableau.png}
+		\caption{Exemple de statistique fournie par Business Geografic}
+		\label{exemple-geobi-tab}
+	\end{center}
+\end{figure}
+
+\begin{figure}[p]
+	\begin{center}
+		\includegraphics[width=\textwidth]{exemple-geobi-carto.png}
+		\caption{Cartographie issue des statistiques de la \emph{Figure \ref*{exemple-geobi-tab}}}
+		\label{exemple-geobi-carto}
+	\end{center}
+\end{figure}
+
+Forts de ces observations, nous avons décidé de rencontrer l'éditeur de GeoBI afin de s'assurer de la compatibilité de leur logiciel avec notre solution et des conditions d'implémentation.
+
+
+\subsection{Rencontre de l'entreprise \emph{Business Geografic}}
+
+Début juin, mon responsable et moi-même avons rencontré sur Lyon le directeur du bureau d'études et le chef de projets de Business Geografic.
+
+\begin{figure}[H]
+	\begin{center}
+		\includegraphics[width=8cm]{geobi-designer.png}
+		\caption{Page d'accueil du Designer GeoBI}
+		\label{geobi-designer}
+	\end{center}
+\end{figure}
+
+Ils nous ont présenté l'outil durant la matinée et ont déroulé devant nous tout un panel de solutions qui allaient bien au delà de ce à quoi nous nous attendions. Le résultat a été assez probant et nous avons décidé de tester leur application dans notre environnement.
+
+
+\subsection{Premier essai}
+
+Une fois installée sur le serveur Tomcat (\emph{voir} Figure \ref{server-geobi}) et paramétrée --- installation extrêmement aisée et rapide en mode graphique --- nous nous sommes rapidement lancés dans un premier essai d'utilisation de GeoBI. La première étape a été de me rendre dans le \emph{Designer GeoBI}, l'interface de paramétrage des données. En effet, nativement, le logiciel ne dispose d'aucun contenu de découpage géographique : il m'a donc fallu en importer.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{vm.png}
+		\caption{Aperçu du Windows Server 2008 sur lequel est installé GeoBI}
+		\label{server-geobi}
+	\end{center}
+\end{figure}
+
+J'ai néanmoins réussi à parvenir à un résultat exploitable en à peine une heure, l'outil étant vraiment intuitif.
+
+
+\subsubsection{Import de fichiers de découpage géographique}
+
+Pour cette première étape, j'ai d'abord dû effectuer quelques recherches sur le format de ces fichiers avant de les importer de manière effective. Ce format spécifique est appelé \emph{Shapefile}.
+
+\paragraph{~\textbullet{}~Le format Shapefile} est un peu particulier. Pour bien le comprendre, quelques notions de cartographie informatique sont nécessaire --- attention néanmoins : ces notions sont volontairement schématisées afin d'en saisir l'essentiel, je n'ai nullement la prétention d'effectuer ici un exposé sur la cartographie.
+
+Le format Shapefile, initialement développé par ESRI\footnote{Environmental Systems Research Institute est la société qui a inventé le concept logiciel des SIG (Système d'Information Géographique) et donc le Shapefile.} pour ses logiciels commerciaux, est rapidement devenu un standard \emph{de facto}. Il est composé de plusieurs fichiers --- dans notre cas, au moins 4 --- : .shp (métadonnées), .shx (index de la géométrie), .dbf (données relatives aux objets du shapefile) et .prj (informations sur le système de coordonnées). Ces fichiers comportent donc divers contours vectoriels (d'où \emph{shapes}) ainsi que des informations associées à chaque zone --- point, ligne, polygone, etc. --- sous forme de couple clé--valeur. 
+
+Pour notre projet, nous allons différencier deux notions : 
+\begin{itemize}
+	\item Le fond de carte (\emph{voir} Figure \ref{carto}-1) : il peut être statique ou dynamique (chargement par "tuiles", différents niveaux de précision en fonction du zoom\dots) et comportera généralement les villes, les rues, leurs noms, etc. Il ne s'agit donc pas de Shapefile.
+	\item Les couches cartographiques (\emph{voir} Figure \ref{carto}-2) : elles représentent des découpages de zones, ce sont elles qui comportent les données clé--valeur et qui sont importées dans GeoBI.
+\end{itemize}
+
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=6cm]{fond-de-carte.png}
+		\includegraphics[width=6cm]{couche-carto.png}
+		\caption{\`A gauche (1) : fond de carte du centre de Troyes - \`A droite (2) : découpage arbitraire du centre de Troyes}
+		\label{carto}
+	\end{center}
+\end{figure}
+
+
+Une fois ces informations assimilées, il m'a fallu trouver des couches Shapefile utilisables.
+
+\paragraph{~\textbullet{}~GéoPortail, le site de données cartographiques} est la source française de référence en matière de géographie territoriale. Il est l'\oe{}uvre de deux établissements publics, l'IGN\footnote{Institut national de l'information géographique et forestière, qui a pour mission d'assurer la production, l'entretien et la diffusion de l'information géographique de référence en France.} et le BRGM\footnote{Bureau de recherches géologiques et minières, l'organisme public français de référence dans le domaine des sciences de la Terre pour la gestion des ressources et des risques du sol et du sous-sol.}.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=6cm]{geoportail.png}
+		\caption{Logo du site GéoPortail} 
+		\label{geoportail}
+	\end{center}
+\end{figure}
+
+Ce site met à disposition différents types de découpages, notamment certains gratuits : régions, départements, communes. Je me suis donc appuyé sur ces shapefiles pour effectuer mon premier test.
+
+%\vspace{\baselineskip}
+\subsubsection{Premiers résultats}
+
+Le paramétrage en ligne se fait très rapidement : il m'a suffi d'uploader les fichiers Shapefile dans le Designer (l'interface de GeoBI) pour les superposer à un fond de carte \emph{OpenStreetMap}\footnote{Projet open-source qui a pour but de constituer une base de données géographique mondiale libre de droits. Plus d'informations sur le wiki dédié : \href{http://wiki.openstreetmap.org/wiki/Using\_OpenStreetMap}{http://wiki.openstreetmap.org/wiki/} [en].} (OSM) et voir se dessiner les découpages des communes.
+
+La deuxième étape a été de lier une clé de la couche cartographique avec un élément issu de l'Univers BO, pour faire une jonction entre la zone physique sur la carte et la zone définie par une donnée particulière. Ici, nous avons choisi le code INSEE de la commune, puisqu'il est unique, et qu'à la différence des noms de villes il ne peut pas y avoir d'ambiguïté (par exemple, comment savoir si la casse dans le Shapefile est \og Ste Savine \fg, \og SAINTE-SAVINE \fg{} ou \og Sainte Savine \fg ?). Cependant, bien qu'existant dans la base de données, cette information n'était pas présente dans l'Univers BO. Il a donc fallu procéder à une mise à jour pour intégrer cet objet.
+
+J'ai ensuite effectué une requête très simple : ressortir le nombre de bénéficiaires du CCAS d'une grande ville du Sud de la France --- nous disposions déjà de la DB associée --- en fonction de la commune de leur foyer. Si le résultat dans un tableau n'est pas parlant, une carte de chaleur est parfaitement adaptée (\emph{voir} Figure \ref{zone-de-chaleur}).
+
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{zone-de-chaleur.png}
+		\caption{Répartition des bénéficiaires d'un CCAS sous forme de zone de chaleur} 
+		\label{zone-de-chaleur}
+	\end{center}
+\end{figure}
+
+\`A la vue de ces résultats plus que satisfaisants, je me suis attelé à la génération de nos propres fichiers Shapefile, la finalité étant de proposer aux utilisateurs, par exemple, un découpage par quartier.
+
+
+\subsection{Utilisation de Shapefiles personnalisés}
+\label{shapefiles}
+
+Cette phase est probablement celle qui m'a posé le plus de problèmes au cours de cette seconde mission. En effet, la communauté des utilisateurs de SIG ne jure que par un seul logiciel pour générer des Shapefiles : \emph{ArcGIS}. \'Edité par ESRI --- l'inventeur du format ---, ce programme est très puissant (beaucoup trop pour nos besoins), mais aussi très cher. Il m'a donc fallu trouver une solution équivalente, et de préférence dans le domaine open-source, tout du moins durant cette phase de tests.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=5cm]{logo-arcgis.png}
+		\caption{Logo du logiciel ArcGIS} 
+		\label{arcgis}
+	\end{center}
+\end{figure}
+
+Malheureusement, il n'existe que très peu de ressources sur la conception de Shapefiles, et encore moins de logiciels spécialisés sur cette activité. Certains permettent de créer des contours, mais pas de les poser sur un fond de carte OSM (donc impossible de dessiner correctement les frontières des zones), d'autres ne donnaient pas la possibilité d'intégrer un attribut clé-valeur (aucun moyen de l'identifier avec un objet BO), d'autres enfin étaient livrés sans documentation et je n'ai jamais réussi à les utiliser correctement.
+
+J'ai donc fait de nombreuses recherches, et subséquemment, me suis rabattu sur une solution alternative. Il existe un logiciel, JOSM (pour Java OpenStreetMap) qui permet de créer ces polygones sur une carte OSM et de leur associer des identifiants.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=3.5cm]{logo-josm.png}
+		\caption{Logo du logiciel JOSM} 
+		\label{logo-josm}
+	\end{center}
+\end{figure}
+
+Malgré cela, le logiciel n'est pas capable d'enregistrer le résultat au format Shapefile : il ne peut le faire qu'en .osm --- dont le contenu n'est autre que du XML. Il m'a fallu passer une fois de plus par des moyens détournés.
+
+J'ai découvert sur GitHub un script python\footnote{Code disponible sur \href{https://gist.github.com/robintw/9366322}{gist.github.com/robintw/9366322}} que j'ai adapté pour qu'il ne soit plus spécifique au fichier de démonstration, et qui permet de transformer un document XML en Shapefile fonctionnel.
+
+Grâce à ce moyen détourné, j'ai pu fournir à Implicit un outil leur permettant de générer leurs propres découpages de communes.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{josm-bouchon.png}
+		\caption{Affectation d'un attribut d'une couche dans JOSM} 
+		\label{josm}
+	\end{center}
+\end{figure}
+
+
+
+\section{Bilan de l'intégration et évolutions envisagées}
+
+Le 8 juillet 2014, mon travail sur la BI géographique a été produit devant le comité \og synergie PPS\footnote{Programmes Publics et Sociaux} \fg{} avec la présence de Jacques-Yves \bsc{Harscouët}, Directeur Général du groupe sur le marché Action Sociales.
+
+Lors de cette réunion a été abordée la monétisation de l'implémentation. En effet, cela faisait plusieurs années qu'Implicit --- et à fortiori les sociétés éditrices de solutions informatique du groupe --- cherchait à développer un système similaire sans succès, et les différents tests que j'ai pu effectuer ont fait la preuve qu'au niveau technique, de nombreuses possibilités étaient offertes.
+
+Il a été décidé de l'utiliser dans un premier temps pour créer via BO des ABS génériques. Pour rappel, l'Analyse des Besoins Sociaux est le dossier qu'un CCAS est tenu de présenter tous les ans sur les différentes évolutions démographico-sociales de la commune afin d'envisager le plan d'action pour les années à venir. Cependant, de nombreux CCAS y consacrent des ressources non négligeables qui pourrait être diminuées, d'autres au contraire passent trop peu de temps dessus pour fournir un document de qualité.
+
+Ainsi, Implicit va leur proposer une étude pré-formatée et générée via un état BO, qui exploitera les données propres à chaque CCAS. Pour créer ces états, il a été décidé de prendre contact durant l'été avec les clients privilégiés de la société pour décider avec eux de ce que devra contenir cet ABS généré.
+
+Enfin, il est à noter que certaines évolutions vont également voir le jour, basées sur l'outil GeoBI. Ce dernier il dispose d'une fonction très utile appelée isochrone, laquelle permet de dessiner une zone autour d'un point donné, comportant tous les endroits accessibles en fonction de la durée nécessaire pour s'y rendre (\emph{voir} Figure \ref{isochrone}). Son utilisation finale reste néanmoins à définir.
+
+\begin{figure}[hbtp]
+	\begin{center}
+		\includegraphics[width=\textwidth]{isochrone.png}
+		\caption{Isochrone des zones accessibles en 15 et 30 minutes depuis le centre-ville de Montpellier} 
+		\label{isochrone}
+	\end{center}
+\end{figure}
+
+

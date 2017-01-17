@@ -1,0 +1,9 @@
+Rapport.*
+*.log
+*.tmp
+Addons
+trombi
+
+
+!Rapport.tex
+
